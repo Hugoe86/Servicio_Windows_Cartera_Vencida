@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Servicio_Cartera_Vencida_Simapag", "Servicio_Cartera_Vencida_Simapag\Servicio_Cartera_Vencida_Simapag.csproj", "{58FE0EA5-74A5-4033-B488-9B5763A70746}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Servicio_Cartera_Vencidad", "Servicio_Cartera_Vencidad\Servicio_Cartera_Vencidad.csproj", "{0B43519D-FF0B-4003-BF76-04CB2ACAE342}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Instalador_Cartera_Vencida", "Instalador_Cartera_Vencida\Instalador_Cartera_Vencida.vdproj", "{090D62C5-D6C2-4822-9611-DBF72E44C6D8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{58FE0EA5-74A5-4033-B488-9B5763A70746}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58FE0EA5-74A5-4033-B488-9B5763A70746}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58FE0EA5-74A5-4033-B488-9B5763A70746}.Debug|x86.ActiveCfg = Debug|x86
+		{58FE0EA5-74A5-4033-B488-9B5763A70746}.Debug|x86.Build.0 = Debug|x86
+		{58FE0EA5-74A5-4033-B488-9B5763A70746}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58FE0EA5-74A5-4033-B488-9B5763A70746}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58FE0EA5-74A5-4033-B488-9B5763A70746}.Release|x86.ActiveCfg = Release|x86
+		{58FE0EA5-74A5-4033-B488-9B5763A70746}.Release|x86.Build.0 = Release|x86
+		{0B43519D-FF0B-4003-BF76-04CB2ACAE342}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B43519D-FF0B-4003-BF76-04CB2ACAE342}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B43519D-FF0B-4003-BF76-04CB2ACAE342}.Debug|x86.ActiveCfg = Debug|x86
+		{0B43519D-FF0B-4003-BF76-04CB2ACAE342}.Debug|x86.Build.0 = Debug|x86
+		{0B43519D-FF0B-4003-BF76-04CB2ACAE342}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B43519D-FF0B-4003-BF76-04CB2ACAE342}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B43519D-FF0B-4003-BF76-04CB2ACAE342}.Release|x86.ActiveCfg = Release|x86
+		{0B43519D-FF0B-4003-BF76-04CB2ACAE342}.Release|x86.Build.0 = Release|x86
+		{090D62C5-D6C2-4822-9611-DBF72E44C6D8}.Debug|Any CPU.ActiveCfg = Debug
+		{090D62C5-D6C2-4822-9611-DBF72E44C6D8}.Debug|Any CPU.Build.0 = Debug
+		{090D62C5-D6C2-4822-9611-DBF72E44C6D8}.Debug|x86.ActiveCfg = Debug
+		{090D62C5-D6C2-4822-9611-DBF72E44C6D8}.Release|Any CPU.ActiveCfg = Release
+		{090D62C5-D6C2-4822-9611-DBF72E44C6D8}.Release|Any CPU.Build.0 = Release
+		{090D62C5-D6C2-4822-9611-DBF72E44C6D8}.Release|x86.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
