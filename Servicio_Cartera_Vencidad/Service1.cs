@@ -22,7 +22,7 @@ namespace Servicio_Cartera_Vencidad
         {
             InitializeComponent();
             Tiempo = new Timer();
-            Tiempo.Interval = 1200000; // 30000 = 30 seg     // 600000 = 10 minutos
+            Tiempo.Interval = 30000; // 30000 = 30 seg     // 600000 = 10 minutos
             Tiempo.Elapsed += new ElapsedEventHandler(Tiempo_Contador);
         }
         /////*******************************************************************************************************
@@ -77,19 +77,35 @@ namespace Servicio_Cartera_Vencidad
             String Str_Anio = "";
             Dictionary<Int32, String> Dic_Meses;
             DateTime Dtime_Hora = DateTime.Now;
-            //StreamWriter SW = new StreamWriter("C:\\Servicios_siac\\Historial.txt", true);
+            StreamWriter SW = new StreamWriter("C:\\Servicios_siac\\Historial.txt", true);
+            StringBuilder Str_Cuentas_Con_Convenio = new StringBuilder();
+            DataTable Dt_Consulta_Cuentas_Con_Convenio = new DataTable();
+
 
             try
             {
-                //SW.WriteLine("************************************************************");
+                SW.WriteLine("************************************************************");
 
-                if (Dtime_Hora.Hour >= 17 && Dtime_Hora.Hour <= 19)
+                if (Dtime_Hora.Hour >= 12 && Dtime_Hora.Hour <= 19)
                 {
                     Dic_Meses = Crear_Diccionario_Meses();
 
                     Dt_Resultado = Crear_Tabla_Final();
-                    Dt_Consulta = Consulta_Cartera_Vencida();
+                    
+                    Dt_Consulta_Cuentas_Con_Convenio = Consulta_Convenios();
 
+
+                    foreach (DataRow Registro in Dt_Consulta_Cuentas_Con_Convenio.Rows)
+                    {
+                        Str_Cuentas_Con_Convenio.Append("'" + Registro["Predio_id"].ToString() + "',");
+                    }
+
+                    if (Str_Cuentas_Con_Convenio.Length > 0)
+                    {
+                        Str_Cuentas_Con_Convenio.Remove(Str_Cuentas_Con_Convenio.Length - 1, 1);
+                    }
+
+                    Dt_Consulta = Consulta_Cartera_Vencida(Str_Cuentas_Con_Convenio.ToString());
 
 
                     foreach (DataRow Registro in Dt_Consulta.Rows)
@@ -98,7 +114,7 @@ namespace Servicio_Cartera_Vencidad
                         Str_Mes = Registro["Mes"].ToString();
                         break;
                     }
-                    // SW.WriteLine("se obtiene año y mes" + DateTime.Now.ToString());
+                     SW.WriteLine("se obtiene año y mes" + DateTime.Now.ToString());
 
 
                     var var_giros = Dt_Consulta.AsEnumerable()
@@ -109,7 +125,7 @@ namespace Servicio_Cartera_Vencidad
                                          Giro_ID = row.Field<String>("giro_Id")
                                      }).Distinct();
 
-                    //SW.WriteLine("se obtiene los giros" + DateTime.Now.ToString());
+                    SW.WriteLine("se obtiene los giros" + DateTime.Now.ToString());
 
                     //      se genera la informacion de la cartera vencida
                     foreach (var Fila_Giro in var_giros)
@@ -122,21 +138,21 @@ namespace Servicio_Cartera_Vencidad
                                            ).AsDataView().ToTable();
 
 
-                        //SW.WriteLine("se convierte a tabla" + DateTime.Now.ToString());
+                        SW.WriteLine("se convierte a tabla" + DateTime.Now.ToString());
 
                         double Db_Total = (from ord in Dt_Cuentas_Cartera_Vencida.AsEnumerable()
                                            select ord.Field<double>("Monto_Adeudo"))
                                                 .Sum();
-                        //SW.WriteLine("se obtiene el monto de adeudo" + DateTime.Now.ToString());
+                        SW.WriteLine("se obtiene el monto de adeudo" + DateTime.Now.ToString());
 
                         double Db_Cantidad = (from ord in Dt_Cuentas_Cartera_Vencida.AsEnumerable()
                                               select ord.Field<string>("nombre_giro"))
                                                 .Count();
 
-                        //SW.WriteLine("se obtiene el count" + DateTime.Now.ToString());
+                        SW.WriteLine("se obtiene el count" + DateTime.Now.ToString());
 
                         Dt_Existencia = Consultar_Si_Esta_Registrada(Fila_Giro.Giro_ID, Str_Anio);
-                        //SW.WriteLine("validacion" + DateTime.Now.ToString());
+                        SW.WriteLine("validacion" + DateTime.Now.ToString());
 
 
                         Dr_ = Dt_Resultado.NewRow();
@@ -171,29 +187,30 @@ namespace Servicio_Cartera_Vencidad
                             {
                                 //  insert
                                 Insertar(Registro);
-                                //SW.WriteLine("insercion" + DateTime.Now.ToString());
+                                SW.WriteLine("insercion" + DateTime.Now.ToString());
                             }
                             else
                             {
                                 //  update
                                 Actualizar(Registro);
-                                //SW.WriteLine("actualizacion" + DateTime.Now.ToString());
+                                SW.WriteLine("actualizacion" + DateTime.Now.ToString());
                             }
                         }
                     }
 
                 }
 
-                //SW.WriteLine("************************************************************");
+                SW.WriteLine("************************************************************");
 
             }
             catch (Exception Ex)
             {
+                SW.WriteLine("Error: " + Ex.Message);
                 throw new Exception("Error: " + Ex.Message);
             }
             finally
             {
-                //SW.Close();
+                SW.Close();
             }
 
         }
@@ -400,7 +417,60 @@ namespace Servicio_Cartera_Vencidad
         ///// <fecha_modifico></fecha_modifico>
         ///// <causa_modificacion></causa_modificacion>
         ///*******************************************************************************************************
-        private DataTable Consulta_Cartera_Vencida()
+        private DataTable Consulta_Convenios()
+        {
+            DataTable Dt_Consulta = new DataTable();
+            StringBuilder Mi_Sql = new StringBuilder();
+            DataSet ds;
+            SqlDataAdapter da;
+
+
+            try
+            {
+
+                using (SqlConnection conexion = new SqlConnection(Cls_Constantes.Str_Conexion))
+                {
+
+                    conexion.Open();
+
+                    using (SqlCommand comando = conexion.CreateCommand())
+                    {
+                        Mi_Sql.Append("SELECT Predio_ID from Ope_Cor_Convenios where Estatus = 'PENDIENTE' ");
+
+
+                        comando.CommandText = Mi_Sql.ToString();
+                        comando.CommandTimeout = 100;
+                        da = new SqlDataAdapter(comando);
+                        ds = new DataSet();
+                        da.Fill(ds);
+
+                        Dt_Consulta = ds.Tables[0];
+                    }
+                }
+
+            }
+            catch (Exception Ex)
+            {
+                throw new Exception("Error: " + Ex.Message);
+            }
+            return Dt_Consulta;
+
+        }
+
+
+
+        /////*******************************************************************************************************
+        ///// <summary>
+        ///// genera un datatable nuevo con los campos para la 
+        ///// </summary>
+        ///// <returns>un datatable con los campos para mostrar accesos e ingresos por año y mes</returns>
+        ///// <creo>Hugo Enrique Ramírez Aguilera</creo>
+        ///// <fecha_creo>13-Enero-2016</fecha_creo>
+        ///// <modifico></modifico>
+        ///// <fecha_modifico></fecha_modifico>
+        ///// <causa_modificacion></causa_modificacion>
+        ///*******************************************************************************************************
+        private DataTable Consulta_Cartera_Vencida(String Predios_Convenio)
         {
             DataTable Dt_Consulta = new DataTable();
             StringBuilder Mi_Sql = new StringBuilder();
@@ -419,10 +489,27 @@ namespace Servicio_Cartera_Vencidad
                     using (SqlCommand comando = conexion.CreateCommand())
                     {
 
-                        Mi_Sql.Append("SELECT " +
+                        Mi_Sql.Append("Select ");
 
-                                    " CAST( SUM(fd.Total_Saldo) as DOUBLE PRECISION ) AS Monto_Adeudo" +
-                                    ",g.Nombre_Giro + ' (' + g.clave + ')'  as Nombre_Giro" +
+                        Mi_Sql.Append(" cast(isnull(( " +
+                                                     " SELECT sum(frd.Total_Saldo)" +
+                                                     " FROM Ope_Cor_Facturacion_Recibos fr" +
+                                                     " JOIN Ope_Cor_Facturacion_Recibos_Detalles frd ON fr.No_Factura_Recibo = frd.No_Factura_Recibo" +
+                                                     " WHERE fr.Estatus_Recibo IN (" +
+                                                             " 'PENDIENTE'" +
+                                                             " ,'PARCIAL'" +
+                                                             ")" +
+                                                         " AND fr.Predio_ID = p.Predio_ID" +
+                                                         " and (" +
+                                                                 " frd.Concepto_ID = (select p.CONCEPTO_AGUA from Cat_Cor_Parametros p)" +
+                                                                 " or frd.Concepto_ID = (select p.Concepto_Agua_Comercial from Cat_Cor_Parametros p)" +
+                                                                 " or frd.Concepto_ID = (select p.CONCEPTO_DRENAJE from Cat_Cor_Parametros p)" +
+                                                                 " or frd.Concepto_ID = (select p.CONCEPTO_SANAMIENTO from Cat_Cor_Parametros p)" +
+                                                         " )" +
+                                                     "), 0) AS DOUBLE PRECISION) AS Monto_Adeudo");
+                        
+
+                        Mi_Sql.Append(",g.Nombre_Giro + ' (' + g.clave + ')'  as Nombre_Giro" +
                                     ",MONTH(getdate()) AS Mes" +
                                     ",year(getdate()) AS Año" +
                                     ",g.giro_id AS Giro_Id" +
@@ -440,11 +527,19 @@ namespace Servicio_Cartera_Vencidad
                                 " WHERE f.Estatus_Recibo IN (" +
                                         " 'PENDIENTE'" +
                                         " ,'PARCIAL'" +
-                                        " )" +
+                                        " )" );
 
-                                    " AND p.cortado = 'NO'" +
+                                    //" AND p.cortado = 'NO'" +
+                        
+                        if (!String.IsNullOrEmpty(Predios_Convenio))
+                        {
+                            Mi_Sql.Append(" and p.predio_id not in (" + Predios_Convenio + ")");
+                        }
 
-                                " GROUP by " +
+
+
+
+                        Mi_Sql.Append(" GROUP by " +
                                     "   g.Nombre_Giro" +
                                     " , p.Predio_ID" +
                                     " , g.giro_id " +
