@@ -22,7 +22,7 @@ namespace Servicio_Cartera_Vencidad
         {
             InitializeComponent();
             Tiempo = new Timer();
-            Tiempo.Interval = 30000; // 30000 = 30 seg     // 600000 = 10 minutos
+            Tiempo.Interval = 900000; // 30000 = 30 seg     // 600000 = 10 minutos // 900000 = 15 minutos
             Tiempo.Elapsed += new ElapsedEventHandler(Tiempo_Contador);
         }
         /////*******************************************************************************************************
@@ -77,16 +77,16 @@ namespace Servicio_Cartera_Vencidad
             String Str_Anio = "";
             Dictionary<Int32, String> Dic_Meses;
             DateTime Dtime_Hora = DateTime.Now;
-            StreamWriter SW = new StreamWriter("C:\\Servicios_siac\\Historial.txt", true);
+            //StreamWriter SW = new StreamWriter("C:\\Servicios_siac\\Historial.txt", true);
             StringBuilder Str_Cuentas_Con_Convenio = new StringBuilder();
             DataTable Dt_Consulta_Cuentas_Con_Convenio = new DataTable();
 
 
             try
             {
-                SW.WriteLine("************************************************************");
+                //SW.WriteLine("************************************************************");
 
-                if (Dtime_Hora.Hour >= 12 && Dtime_Hora.Hour <= 19)
+                if (Dtime_Hora.Hour >= 18 && Dtime_Hora.Hour <= 19)
                 {
                     Dic_Meses = Crear_Diccionario_Meses();
 
@@ -114,18 +114,17 @@ namespace Servicio_Cartera_Vencidad
                         Str_Mes = Registro["Mes"].ToString();
                         break;
                     }
-                     SW.WriteLine("se obtiene año y mes" + DateTime.Now.ToString());
+                    //SW.WriteLine("se obtiene año y mes" + DateTime.Now.ToString());
 
 
                     var var_giros = Dt_Consulta.AsEnumerable()
                                      .Select(row => new
                                      {
-                                         Giro = row.Field<String>("nombre_giro")
-                                         ,
+                                         Giro = row.Field<String>("nombre_giro"),
                                          Giro_ID = row.Field<String>("giro_Id")
                                      }).Distinct();
 
-                    SW.WriteLine("se obtiene los giros" + DateTime.Now.ToString());
+                    //SW.WriteLine("se obtiene los giros" + DateTime.Now.ToString());
 
                     //      se genera la informacion de la cartera vencida
                     foreach (var Fila_Giro in var_giros)
@@ -133,26 +132,25 @@ namespace Servicio_Cartera_Vencidad
                         //  se obtiene la informacion del tipo de giro
                         Dt_Cuentas_Cartera_Vencida = (from fila in Dt_Consulta.AsEnumerable()
                                                       where fila.Field<String>("giro_id") == (Fila_Giro.Giro_ID)
-
                                                       select fila
                                            ).AsDataView().ToTable();
 
 
-                        SW.WriteLine("se convierte a tabla" + DateTime.Now.ToString());
+                        //SW.WriteLine("se convierte a tabla" + DateTime.Now.ToString());
 
                         double Db_Total = (from ord in Dt_Cuentas_Cartera_Vencida.AsEnumerable()
                                            select ord.Field<double>("Monto_Adeudo"))
                                                 .Sum();
-                        SW.WriteLine("se obtiene el monto de adeudo" + DateTime.Now.ToString());
+                        //SW.WriteLine("se obtiene el monto de adeudo" + DateTime.Now.ToString());
 
                         double Db_Cantidad = (from ord in Dt_Cuentas_Cartera_Vencida.AsEnumerable()
                                               select ord.Field<string>("nombre_giro"))
                                                 .Count();
 
-                        SW.WriteLine("se obtiene el count" + DateTime.Now.ToString());
+                        //SW.WriteLine("se obtiene el count" + DateTime.Now.ToString());
 
                         Dt_Existencia = Consultar_Si_Esta_Registrada(Fila_Giro.Giro_ID, Str_Anio);
-                        SW.WriteLine("validacion" + DateTime.Now.ToString());
+                        //SW.WriteLine("validacion" + DateTime.Now.ToString());
 
 
                         Dr_ = Dt_Resultado.NewRow();
@@ -187,30 +185,30 @@ namespace Servicio_Cartera_Vencidad
                             {
                                 //  insert
                                 Insertar(Registro);
-                                SW.WriteLine("insercion" + DateTime.Now.ToString());
+                                //SW.WriteLine("insercion" + DateTime.Now.ToString());
                             }
                             else
                             {
                                 //  update
                                 Actualizar(Registro);
-                                SW.WriteLine("actualizacion" + DateTime.Now.ToString());
+                                //SW.WriteLine("actualizacion" + DateTime.Now.ToString());
                             }
                         }
                     }
 
                 }
 
-                SW.WriteLine("************************************************************");
+                //SW.WriteLine("************************************************************");
 
             }
             catch (Exception Ex)
             {
-                SW.WriteLine("Error: " + Ex.Message);
+                //SW.WriteLine("Error: " + Ex.Message);
                 throw new Exception("Error: " + Ex.Message);
             }
             finally
             {
-                SW.Close();
+                //SW.Close();
             }
 
         }

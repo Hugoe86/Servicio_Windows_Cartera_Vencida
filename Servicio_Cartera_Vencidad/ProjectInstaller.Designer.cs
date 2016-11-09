@@ -40,7 +40,7 @@
             // serviceInstaller1
             // 
             this.serviceInstaller1.Description = "Registra la informacion de las cuentas con adeudo para el reporte de planeacion. " +
-    "Se ejecutara la actualizacion de la información en horario de 14:00 - 17:00";
+    "Se ejecutara la actualizacion de la información en horario de 18:00 - 19:00";
             this.serviceInstaller1.DisplayName = "Servicio cartera vencida ********************************";
             this.serviceInstaller1.ServiceName = "Servicio_Cartera_Vencida";
             this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
